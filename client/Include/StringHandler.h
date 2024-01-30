@@ -3,7 +3,6 @@
 #define SYMBOL_LIMIT 64
 
 #include <string>
-#include <regex>
 
 class StringHandler
 {
