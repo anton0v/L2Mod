@@ -10,6 +10,7 @@ Summator::Summator(std::string input) :
 
 void Summator::SumFromKBString(std::string input)
 {
+    _sum = 0;
     if(input.find_first_not_of("0123456789KB") != std::string::npos)
         throw std::runtime_error("string must contain only digits and KB");
     
