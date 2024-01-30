@@ -2,6 +2,7 @@
 
 #include <regex>
 #include <algorithm>
+#include <stdexcept>
 
 StringHandler::StringHandler(std::string input)
 {
@@ -18,5 +19,5 @@ void StringHandler::Handle(std::string input)
 
     std::sort(input.begin(), input.end(), std::greater<char>());
     
-    KBString = std::regex_replace(input, std::regex("[02468]"), "KB");
+    _KBString = std::regex_replace(input, std::regex("[02468]"), "KB");
 }
