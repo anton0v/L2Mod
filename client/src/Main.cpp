@@ -2,6 +2,7 @@
 #include <string>
 
 #include "StringHandler.h"
+#include "Summator.h"
 
 int main()
 {
@@ -11,7 +12,12 @@ int main()
     try
     {
         StringHandler handler(input);
-        std::cout << handler.GetKBString();
+        std::string res = handler.GetKBString();
+
+        Summator summator(res);
+
+        std::cout << res << "\n";
+        std::cout << summator.GetSum();
     }
     catch(const std::exception& e)
     {
