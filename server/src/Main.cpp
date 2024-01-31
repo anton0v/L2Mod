@@ -15,7 +15,11 @@ int main()
     while(true)
     {
         server.Recieve(buff, bufSize);
-        std::cout << std::string(buff) << std::endl;
+        int res = atoi(buff);
+        if(res > 99 && res % 32 == 0)
+            std::cout << res << std::endl;
+        else
+            std::cout << "ERROR" << std::endl;
     }
 
     return EXIT_SUCCESS;
