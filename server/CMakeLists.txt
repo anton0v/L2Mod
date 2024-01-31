@@ -1,18 +1,16 @@
 cmake_minimum_required(VERSION 3.15)
 
 set(SOURCE src/Main.cpp
-           src/StringHandler.cpp
-           src/Summator.cpp
+           src/TCPServerCon.cpp
            
            ./../src/Connection.cpp
            ./../src/TCPConnection.cpp)
 
-set(HEADERS include/StringHandler.h
-            include/Summator.h
+set(HEADERS include/TCPServerCon.h
             
             ./../include/Connection.h
             ./../include/TCPConnection.h)
 
-add_executable(Client ${SOURCE} ${HEADERS})
+add_executable(Server ${SOURCE} ${HEADERS})
 
-target_include_directories(Client PUBLIC include/ ./../include )
+target_include_directories(Server PUBLIC include/ ./../include )
