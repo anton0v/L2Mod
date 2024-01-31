@@ -6,6 +6,7 @@
 
 #include "StringHandler.h"
 #include "Summator.h"
+#include "TCPConnection.h"
 
 #define BUFFER_SIZE 128
 
@@ -20,15 +21,29 @@ int main()
     
     std::thread outputHandle([&]()
     {
+        TCPConnection connection;
+        connection.Connect("127.0.0.1", 88005);
         Summator summator;
+
+        char sumString[8];
+
         while(!isEnd)
         {
             std::unique_lock<std::mutex> lock(mut);
             cond.wait(lock, [&](){return (buffer[0] != '\0');});
 
-            summator.SumFromKBString(std::string(buffer));
+            std::string res(buffer);
+            summator.SumFromKBString(res);
             
-            std::cout << summator.GetSum() << "\n";
+            //std::cout << summator.GetSum() << "\n";
+            std::cout << res << "\n";
+            if (!connection.IsOpen())
+                connection.Connect("127.0.0.1", 88005);
+            
+            itoa(summator.GetSum(), sumString, 10);
+
+            connection.Send(sumString);
+
             std::fill(buffer, buffer + BUFFER_SIZE, '\0');
 
             lock.unlock();
