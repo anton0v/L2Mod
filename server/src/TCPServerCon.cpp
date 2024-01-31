@@ -72,20 +72,25 @@ void TCPServerCon::Send(const char* buff) const
     }
 }
 
-void TCPServerCon::Recieve(char* buff, int size)
+bool TCPServerCon::Recieve(char* buff, int size)
 {
     if (!_isOpen)
-        return;
+        return false;
 
     int recvBytes = recv(_clientSock, buff, size, 0);
     if (recvBytes > 0)
     {
         std::cout << "Bytes received: " << recvBytes << std::endl;
+        return true;
     }
     else if (recvBytes == 0)
         std::cout << "Connection closed\n" << std::endl;
     else
         std::cout << "recv failed with error: " << WSAGetLastError() << std::endl;
+
+    _hasClient = false;
+
+    return false;
 }
 
 void TCPServerCon::Bind(const std::string& ip, const int port)
@@ -128,7 +133,13 @@ void TCPServerCon::Accept()
     if(_hasClient)
         return;
 
-    _clientSock = accept(_sock, nullptr, nullptr);
+    if ((_clientSock = accept(_sock, nullptr, nullptr)) == SOCKET_ERROR)
+    {
+        Close();
+        throw std::runtime_error("Failed to 'accept()' at port #" +
+            std::to_string(_port));
+    }
+    
 
     _hasClient = true;
 }

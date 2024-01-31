@@ -14,7 +14,9 @@ int main()
 
     while(true)
     {
-        server.Recieve(buff, bufSize);
+        if(!server.Recieve(buff, bufSize))
+            server.Accept();
+            
         int res = atoi(buff);
         if(res > 99 && res % 32 == 0)
             std::cout << res << std::endl;

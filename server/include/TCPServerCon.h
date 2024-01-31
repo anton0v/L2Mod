@@ -30,7 +30,7 @@ public:
     bool IsOpen() const { return _isOpen; }
     bool Close();
     void Send(const char* buff) const;
-    void Recieve(char* buff, int size);
+    bool Recieve(char* buff, int size);
     
     void Bind(const std::string& ip, const int port);
     void Accept();
