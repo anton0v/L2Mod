@@ -1,7 +1,9 @@
 #include "TCPServerCon.h"
 
 #include <iostream>
+#include <cstring>
 
+#ifdef _WIN32
 int TCPServerCon::_sockCount = 0;
 
 void TCPServerCon::InitWSA()
@@ -27,18 +29,38 @@ void TCPServerCon::CloseWSA()
     WSACleanup();
 }
 
+#endif
+
 TCPServerCon::TCPServerCon(const std::string & ip, const int port) : 
-    _hasClient(false)
+    _hasClient(false),
+    _port(port),
+    _ip(ip)
 {
-    InitWSA();
+    #ifdef _WIN32
+    if (_sockCount == 0)
+    {
+        WSADATA info;
+        if (WSAStartup(MAKEWORD(2, 0), &info) != 0)
+        {
+            throw std::runtime_error("WSAStartup error" 
+                + std::to_string(WSAGetLastError()));
+        }
+    }
+
+    ++_sockCount;
+    #endif
+
     Bind(ip, port);
 }
 
 TCPServerCon::~TCPServerCon()
 {
     Close();
+
+    #ifdef _WIN32
     if(_sockCount == 0)
-        CloseWSA();
+        WSACleanup();
+    #endif
 }
 
 bool TCPServerCon::Close()
@@ -46,30 +68,25 @@ bool TCPServerCon::Close()
     if (!_isOpen)
         return false;
     
+    #ifdef _WIN32
     int iResult = closesocket(_sock);
-    if (iResult == SOCKET_ERROR) {
-        throw std::runtime_error("closesocket function failed with error: "
-            + std::to_string(WSAGetLastError()));
+    #else
+    int iResult = close(_sock);
+    #endif
+    
+    if (iResult == NET_SOCKET_ERROR) {
+        throw std::runtime_error("closesocket function failed with error: ");
+            //+ std::to_string(WSAGetLastError()));
         return false;
     }
 
     _isOpen = false;
 
+    #ifdef _WIN32
     --_sockCount;
+    #endif
 
     return true;
-}
-
-void TCPServerCon::Send(const char* buff) const
-{
-    if (!_isOpen)
-        return;
-
-    int iResult = send(_clientSock, buff, (int)strlen(buff), 0);
-    if (iResult == SOCKET_ERROR) {
-        std::cout << "send failed with error: " << WSAGetLastError() << std::endl;
-        closesocket(_sock);
-    }
 }
 
 bool TCPServerCon::Recieve(char* buff, int size)
@@ -86,7 +103,7 @@ bool TCPServerCon::Recieve(char* buff, int size)
     else if (recvBytes == 0)
         std::cout << "Connection closed\n" << std::endl;
     else
-        std::cout << "recv failed with error: " << WSAGetLastError() << std::endl;
+        std::cout << "recv failed with error: ";// << WSAGetLastError() << std::endl;
 
     _hasClient = false;
 
@@ -101,13 +118,19 @@ void TCPServerCon::Bind(const std::string& ip, const int port)
     if (_isOpen)
         Close();
 
-    _service.sin_family = AF_INET;
-    _service.sin_addr.s_addr = inet_addr(ip.c_str());
+    _port = port;
+    _ip = ip;
+
+    std::memset(&_service, 0, sizeof(_service));
+
+    std::cout << port << std::endl;
+    _service.sin_family = PF_INET;
+    //_service.sin_addr.s_addr = inet_addr(ip.c_str());
     _service.sin_port = htons(port); 
 
-    _sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (_sock == INVALID_SOCKET) {
-        std::cout << "socket function failed with error: " << WSAGetLastError() << std::endl;
+    _sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (_sock == INVALID_SOCKET_ID) {
+        std::cout << "socket function failed with error: ";// << WSAGetLastError() << std::endl;
         return;
     }
 
@@ -133,11 +156,11 @@ void TCPServerCon::Accept()
     if(_hasClient)
         return;
 
-    if ((_clientSock = accept(_sock, nullptr, nullptr)) == SOCKET_ERROR)
+    if ((_clientSock = accept(_sock, nullptr, nullptr)) == INVALID_SOCKET_ID)
     {
         Close();
-        throw std::runtime_error("Failed to 'accept()' at port #" +
-            std::to_string(_port));
+        throw std::runtime_error("Failed to 'accept()' with error #" +
+            std::string(strerror(errno)));
     }
     
 
