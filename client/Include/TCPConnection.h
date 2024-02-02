@@ -1,16 +1,29 @@
 #ifndef CONNECTION_H
 
 #include <stdexcept>
+#ifdef _WIN32
 #include <WinSock2.h>
+typedef SOCKET SocketID;
+#define INVALID_SOCKET_ID INVALID_SOCKET
+#define NET_SOCKET_ERROR SOCKET_ERROR
+#else
+#include <sys/socket.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+typedef int SocketID;
+#define INVALID_SOCKET_ID (-1)
+#define NET_SOCKET_ERROR (-1)
+#endif
 #include <string>
 
 class TCPConnection
 {
 private:
+    #ifdef _WIN32
     static int _sockCount;
-    static void InitWSA();
-    static void CloseWSA();
-    SOCKET _sock;
+    #endif
+    SocketID _sock;
 	std::string _ip;
     int _port;
 	bool _isOpen;

@@ -40,7 +40,8 @@ int main()
             if (!connection.IsOpen())
                 connection.Connect("127.0.0.1", 88005);
             
-            itoa(summator.GetSum(), sumString, 10);
+            snprintf(sumString, 8, "%d", summator.GetSum());
+            //itoa(summator.GetSum(), sumString, 10);
 
             connection.Send(sumString);
 

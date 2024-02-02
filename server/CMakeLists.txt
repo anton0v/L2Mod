@@ -7,5 +7,8 @@ set(HEADERS include/TCPServerCon.h)
 
 add_executable(Server ${SOURCE} ${HEADERS})
 
-target_include_directories(Server PUBLIC include/ ./../include )
-target_link_libraries(Server PUBLIC wsock32 ws2_32)
+target_include_directories(Server PRIVATE include/)
+
+IF (WIN32)
+    target_link_libraries(Server PRIVATE wsock32 ws2_32)
+ENDIF()
