@@ -35,13 +35,11 @@ int main()
             std::string res(buffer);
             summator.SumFromKBString(res);
             
-            //std::cout << summator.GetSum() << "\n";
             std::cout << res << "\n";
             if (!connection.IsOpen())
                 connection.Connect("127.0.0.1", 88005);
             
             snprintf(sumString, 8, "%d", summator.GetSum());
-            //itoa(summator.GetSum(), sumString, 10);
 
             connection.Send(sumString);
 

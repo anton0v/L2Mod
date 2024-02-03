@@ -23,28 +23,27 @@ void TCPServerCon::Bind(const std::string& ip, const int port)
 
     std::memset(&_service, 0, sizeof(_service));
 
-    std::cout << port << std::endl;
+    std::cout << "Connection port:" << port << std::endl;
     _service.sin_family = PF_INET;
-    //_service.sin_addr.s_addr = inet_addr(ip.c_str());
     _service.sin_port = htons(port); 
 
     _sock = socket(AF_INET, SOCK_STREAM, 0);
     if (_sock == INVALID_SOCKET_ID) {
-        std::cout << "socket function failed with error: ";// << WSAGetLastError() << std::endl;
+        throw TCPConError("socket function failed");
         return;
     }
 
     if (bind(_sock, reinterpret_cast<sockaddr *>(&_service), sizeof(_service)) != 0)
     {
         Close();
-        throw std::runtime_error("Failed to 'bind()' socket to port #" +
+        throw TCPConError("Failed to 'bind()' socket to port #" +
             std::to_string(_port));
     }
 
     if (listen(_sock, 1) != 0)
     {
         Close();
-        throw std::runtime_error("Failed to 'listen()' at port #" +
+        throw TCPConError("Failed to 'listen()' at port #" +
             std::to_string(_port));
     }
 
@@ -59,8 +58,7 @@ void TCPServerCon::Accept()
     if ((_clientSock = accept(_sock, nullptr, nullptr)) == INVALID_SOCKET_ID)
     {
         Close();
-        throw std::runtime_error("Failed to 'accept()' with error #" +
-            std::string(strerror(errno)));
+        throw TCPConError("Failed to 'accept()'");
     }
     
 
@@ -81,7 +79,7 @@ bool TCPServerCon::Recieve(char* buff, int size)
     else if (recvBytes == 0)
         std::cout << "Connection closed\n" << std::endl;
     else
-        std::cout << "recv failed with error: ";// << WSAGetLastError() << std::endl;
+        std::cout << "recv failed with error: ";
 
     _hasClient = false;
 

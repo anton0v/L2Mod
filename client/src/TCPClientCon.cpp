@@ -6,18 +6,6 @@
 TCPClientCon::TCPClientCon(const std::string& ip, const int port) : 
     TCPConnection(ip, port)
 {
-    #ifdef _WIN32
-    if (_sockCount == 0)
-    {
-        WSADATA info;
-        if (WSAStartup(MAKEWORD(2, 0), &info) != 0)
-        {
-            throw std::runtime_error("WSAStartup error" 
-                + std::to_string(WSAGetLastError()));
-        }
-    }
-
-    #endif
     Connect(ip, port);
 }
 

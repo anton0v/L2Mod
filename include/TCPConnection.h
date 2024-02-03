@@ -16,6 +16,13 @@ typedef int SocketID;
 #define NET_SOCKET_ERROR (-1)
 #endif
 #include <string>
+#include <cstring>
+
+class TCPConError : public std::runtime_error 
+{
+public:
+    TCPConError(const std::string & message);
+};
 
 class TCPConnection
 {

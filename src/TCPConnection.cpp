@@ -1,5 +1,13 @@
 #include "TCPConnection.h"
 
+TCPConError::TCPConError(const std::string & message)
+    #ifdef _WIN32
+    : std::runtime_error(message + std::string(" | sys error: ") + std::to_string(WSAGetLastError()))
+    #else
+    : std::runtime_error(message + std::string(" | sys error: ") + std::strerror(errno))
+    #endif
+{
+}
 
 #ifdef _WIN32
 int TCPConnection::_sockCount = 0;
@@ -15,8 +23,7 @@ TCPConnection::TCPConnection(const std::string& ip, const int port) :
         WSADATA info;
         if (WSAStartup(MAKEWORD(2, 0), &info) != 0)
         {
-            throw std::runtime_error("WSAStartup error" 
-                + std::to_string(WSAGetLastError()));
+            throw TCPConError("WSAStartup error");
         }
     }
     #endif
@@ -43,8 +50,7 @@ bool TCPConnection::Close()
     #endif
     
     if (iResult == NET_SOCKET_ERROR) {
-        throw std::runtime_error("closesocket function failed with error: ");
-            //+ std::to_string(WSAGetLastError()));
+        throw TCPConError("closesocket function failed with error: ");
         return false;
     }
 
