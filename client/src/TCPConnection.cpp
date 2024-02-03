@@ -22,7 +22,6 @@ TCPConnection::TCPConnection(const std::string& ip, const int port) :
         }
     }
 
-    ++_sockCount;
     #endif
     Connect(ip, port);
 }
@@ -76,6 +75,9 @@ void TCPConnection::Connect(const std::string& ip, const int port)
     }
 
     _isOpen = true;
+    #ifdef _WIN32
+    ++_sockCount;
+    #endif
 }
 
 bool TCPConnection::Close()
@@ -108,7 +110,12 @@ bool TCPConnection::Send(const char* buff)
     if (!_isOpen)
         return false;
 
+    #ifdef _WIN32
     int iResult = send(_sock, buff, (int)strlen(buff), 0);
+    #else
+    int iResult = send(_sock, buff, (int)strlen(buff), MSG_NOSIGNAL);
+    #endif
+    
     if (iResult == NET_SOCKET_ERROR) {
         std::cout << "send failed with error: \n";// << WSAGetLastError() << std::endl;
         Close();
