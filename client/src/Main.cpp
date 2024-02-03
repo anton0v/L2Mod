@@ -6,7 +6,7 @@
 
 #include "StringHandler.h"
 #include "Summator.h"
-#include "TCPConnection.h"
+#include "TCPClientCon.h"
 
 #define BUFFER_SIZE 128
 
@@ -21,7 +21,7 @@ int main()
     
     std::thread outputHandle([&]()
     {
-        TCPConnection connection;
+        TCPClientCon connection;
         connection.Connect("127.0.0.1", 88005);
         Summator summator;
 

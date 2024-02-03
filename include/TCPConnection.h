@@ -1,4 +1,4 @@
-#ifndef CONNECTION_H
+#ifndef TCPCONNECTION_H
 
 #include <stdexcept>
 #ifdef _WIN32
@@ -19,7 +19,7 @@ typedef int SocketID;
 
 class TCPConnection
 {
-private:
+protected:
     #ifdef _WIN32
     static int _sockCount;
     #endif
@@ -40,9 +40,8 @@ public:
     
     bool IsOpen() const { return _isOpen; }
     bool Close();
-    void Connect(const std::string& ip, const int port);
-    bool Send(const char* buff);
-    bool Recieve(char* buff, int size);
+    virtual bool Send(const char* buff) = 0;
+    virtual bool Recieve(char* buff, int size) = 0;
 };
 
 #endif

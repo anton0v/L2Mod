@@ -1,15 +1,10 @@
-#include "TCPConnection.h"
+#include "TCPClientCon.h"
 
 #include <iostream>
 #include <cstring>
 
-#ifdef _WIN32
-int TCPConnection::_sockCount = 0;
-#endif
-
-TCPConnection::TCPConnection(const std::string& ip, const int port) : 
-    _ip(ip),
-    _port(port)
+TCPClientCon::TCPClientCon(const std::string& ip, const int port) : 
+    TCPConnection(ip, port)
 {
     #ifdef _WIN32
     if (_sockCount == 0)
@@ -26,29 +21,7 @@ TCPConnection::TCPConnection(const std::string& ip, const int port) :
     Connect(ip, port);
 }
 
-TCPConnection::~TCPConnection()
-{
-    Close();
-    #ifdef _WIN32
-    if(_sockCount == 0)
-        WSACleanup();
-    #endif
-}
-
-TCPConnection::TCPConnection(TCPConnection && other) noexcept
-{
-    _sock = other._sock;
-    other._sock = NET_SOCKET_ERROR;
-}
-
-TCPConnection & TCPConnection::operator=(TCPConnection && other) noexcept
-{
-    _sock = other._sock;
-    other._sock = NET_SOCKET_ERROR;
-    return *this;
-}
-
-void TCPConnection::Connect(const std::string& ip, const int port)
+void TCPClientCon::Connect(const std::string& ip, const int port)
 {
     if (ip == "")
         return;
@@ -80,32 +53,7 @@ void TCPConnection::Connect(const std::string& ip, const int port)
     #endif
 }
 
-bool TCPConnection::Close()
-{
-    if (!_isOpen)
-        return false;
-    
-    #ifdef _WIN32
-    int iResult = closesocket(_sock);
-    #else
-    int iResult = close(_sock);
-    #endif
-    if (iResult == NET_SOCKET_ERROR) {
-        throw std::runtime_error("closesocket function failed with error: ");
-            //+ std::to_string(WSAGetLastError()));
-        return false;
-    }
-
-    _isOpen = false;
-
-    #ifdef _WIN32
-    --_sockCount;
-    #endif
-
-    return true;
-}
-
-bool TCPConnection::Send(const char* buff)
+bool TCPClientCon::Send(const char* buff)
 {
     if (!_isOpen)
         return false;
@@ -124,7 +72,7 @@ bool TCPConnection::Send(const char* buff)
     return true;
 }
 
-bool TCPConnection::Recieve(char* buff, int size)
+bool TCPClientCon::Recieve(char* buff, int size)
 {
     if (!_isOpen)
         return false;

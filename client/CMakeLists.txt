@@ -8,15 +8,19 @@ ENDIF()
 set(SOURCE src/Main.cpp
            src/StringHandler.cpp
            src/Summator.cpp
-           src/TCPConnection.cpp)
+           src/TCPClientCon.cpp
+           
+           ../src/TCPConnection.cpp)
 
 set(HEADERS include/StringHandler.h
             include/Summator.h
-            include/TCPConnection.h)
+            include/TCPClientCon.h
+            
+            ../include/TCPConnection.h)
 
 add_executable(Client ${SOURCE} ${HEADERS})
 
-target_include_directories(Client PRIVATE include/)
+target_include_directories(Client PRIVATE include/ ../include)
 
 IF (WIN32)
     target_link_libraries(Client PRIVATE wsock32 ws2_32)
