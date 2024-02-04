@@ -22,15 +22,17 @@ void TCPClientCon::Connect(const std::string& ip, const int port)
         Close();
 
     _sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (_sock == INVALID_SOCKET_ID) {
-        std::cout << "socket function failed with error: \n"; // << WSAGetLastError() << std::endl;
-        return;
-    }
+    if (_sock == INVALID_SOCKET_ID)
+        throw TCPConError("socket function failed");
 
     int iResult = connect(_sock, reinterpret_cast<sockaddr *>(&_service), sizeof(_service));
     if (iResult == NET_SOCKET_ERROR) {
-        _isOpen = false;
-        std::cout << "connect function failed with error: \n";// << WSAGetLastError() << std::endl;
+        std::cout << "connect function failed with error: ";
+        #ifdef _WIN32
+        std::cout << std::to_string(WSAGetLastError()) << std::endl;
+        #else
+        std::cout <<  std::strerror(errno) << std::endl; 
+        #endif
         Close();
         return;
     }
@@ -53,7 +55,12 @@ bool TCPClientCon::Send(const char* buff)
     #endif
     
     if (iResult == NET_SOCKET_ERROR) {
-        std::cout << "send failed with error: \n";// << WSAGetLastError() << std::endl;
+        std::cout << "send failed with error: ";
+        #ifdef _WIN32
+        std::cout << std::to_string(WSAGetLastError()) << std::endl;
+        #else
+        std::cout <<  std::strerror(errno) << std::endl; 
+        #endif
         Close();
         return false;
     }
@@ -74,7 +81,12 @@ bool TCPClientCon::Recieve(char* buff, int size)
         std::cout << "Connection closed\n" << std::endl;
     else
     {
-        std::cout << "recv failed with error: \n";// WSAGetLastError() << std::endl;
+        std::cout << "recv failed with error: ";
+        #ifdef _WIN32
+        std::cout << std::to_string(WSAGetLastError()) << std::endl;
+        #else
+        std::cout <<  std::strerror(errno) << std::endl; 
+        #endif
         return false;
     }
 

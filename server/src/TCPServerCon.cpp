@@ -28,10 +28,8 @@ void TCPServerCon::Bind(const std::string& ip, const int port)
     _service.sin_port = htons(port); 
 
     _sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (_sock == INVALID_SOCKET_ID) {
+    if (_sock == INVALID_SOCKET_ID)
         throw TCPConError("socket function failed");
-        return;
-    }
 
     if (bind(_sock, reinterpret_cast<sockaddr *>(&_service), sizeof(_service)) != 0)
     {
