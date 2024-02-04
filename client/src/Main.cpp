@@ -22,7 +22,6 @@ int main()
     std::thread outputHandle([&]()
     {
         TCPClientCon connection;
-        connection.Connect("127.0.0.1", 88005);
         Summator summator;
 
         char sumString[8];
@@ -58,9 +57,14 @@ int main()
         std::unique_lock<std::mutex> lock(mut);
         cond.wait(lock, [&](){return buffer[0] == '\0';});
 
+        std::cout << "\n->";
         std::cin >> input;
         
-        handler.Handle(input);
+        while(!handler.Handle(input))
+        {
+            std::cout << "string must contain only digits and it's max size is 64\n\n->";
+            std::cin >> input;
+        }
         std::string res = handler.GetKBString();
         
         std::copy(res.begin(), res.end(), buffer);

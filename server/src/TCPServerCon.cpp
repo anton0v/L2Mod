@@ -77,7 +77,14 @@ bool TCPServerCon::Recieve(char* buff, int size)
     else if (recvBytes == 0)
         std::cout << "Connection closed\n" << std::endl;
     else
+    {
         std::cout << "recv failed with error: ";
+        #ifdef _WIN32
+        std::cout << std::to_string(WSAGetLastError()) << std::endl;
+        #else
+        std::cout <<  std::strerror(errno) << std::endl; 
+        #endif
+    }
 
     _hasClient = false;
 
