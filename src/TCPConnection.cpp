@@ -15,7 +15,9 @@ int TCPConnection::_sockCount = 0;
 
 TCPConnection::TCPConnection(const std::string& ip, const int port) :
     _ip(ip),
-    _port(port)
+    _port(port),
+    _isOpen(false),
+    _sock(INVALID_SOCKET_ID)
 {
     #ifdef _WIN32
     if (_sockCount == 0)
@@ -61,4 +63,35 @@ bool TCPConnection::Close()
     #endif
 
     return true;
+}
+
+TCPConnection::TCPConnection(TCPConnection && other) noexcept
+{
+    if(!other._isOpen)
+        return;
+    
+    _sock = other._sock;
+    _ip = other._ip;
+    _port = other._port;
+    _isOpen = true;
+    other._sock = INVALID_SOCKET_ID;
+    other._isOpen = false;
+}
+
+TCPConnection & TCPConnection::operator=(TCPConnection && other) noexcept
+{
+    if(!other._isOpen)
+        return *this;
+    
+    if(_isOpen)
+        Close();
+    
+    _sock = other._sock;
+    _ip = other._ip;
+    _port = other._port;
+    _isOpen = true;
+    other._sock = INVALID_SOCKET_ID;
+    other._isOpen = false;
+
+    return *this;
 }
